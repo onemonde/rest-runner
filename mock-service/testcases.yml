@@ -1,0 +1,244 @@
+suite_title: "mock-service - POST /orders"
+tests:
+  - test_number: 1
+    description: "Pedido correcto: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: &headers
+        Content-Type: "application/json"
+        Accept: "application/json"
+      body: &order
+        orderNumber: 10482
+        name: "Alejandro"
+        phone: "+34600123456"
+        email: "alejandro.fernandez@example.com"
+        member: true
+        numberOfProducts: 2
+        price: 45.5
+        products:
+          - name: "Café Grano"
+            box: "L"
+            price: 20.0
+          - name: "Galletas Artesanales"
+            box: "M"
+            price: 25.5
+
+  - test_number: 2
+    description: "Pedido correcto sin barra final en la ruta: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders"
+      headers: *headers
+      body: *order
+
+  # --- Validaciones que el servicio hace: 400 ---
+
+  - test_number: 3
+    description: "name con más de 20 caracteres: 400 error on name"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        name: "Alejandromaximilianoo"
+
+  - test_number: 4
+    description: "name con números: 400 error on name"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        name: "Alejandro1"
+
+  - test_number: 5
+    description: "name con espacios: 400 error on name"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        name: "Ana Maria"
+
+  - test_number: 6
+    description: "name vacío: 400 error on name"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        name: ""
+
+  - test_number: 7
+    description: "phone con espacio tras el prefijo: 400 error on phone"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        phone: "+34 600123456"
+
+  - test_number: 8
+    description: "phone con 8 dígitos: 400 error on phone"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        phone: "+3460012345"
+
+  - test_number: 9
+    description: "phone con otro prefijo: 400 error on phone"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        phone: "+33600123456"
+
+  - test_number: 10
+    description: "email sin arroba: 400 error on email"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        email: "alejandro.fernandez.example.com"
+
+  - test_number: 11
+    description: "member nulo: 400 error on member"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        member: null
+
+  - test_number: 12
+    description: "Falta el campo price: 400 error on price"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        orderNumber: 10482
+        name: "Alejandro"
+        phone: "+34600123456"
+        email: "alejandro.fernandez@example.com"
+        member: true
+        numberOfProducts: 2
+        products:
+          - name: "Café Grano"
+            box: "L"
+            price: 20.0
+
+  - test_number: 13
+    description: "orderNumber como texto: 400 error on orderNumber, con orderNumber null"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        orderNumber: "10482"
+
+  - test_number: 14
+    description: "name y phone incorrectos: 400 solo con el primero, error on name"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        name: "Ana 1"
+        phone: "600123456"
+
+  - test_number: 15
+    description: "Producto con price nulo: 400 error on products"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        products:
+          - name: "Café Grano"
+            box: "L"
+            price: null
+
+  - test_number: 16
+    description: "Producto sin el campo box: 400 error on products"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        products:
+          - name: "Café Grano"
+            price: 20.0
+
+  - test_number: 17
+    description: "El body no es un objeto: 400 malformed body"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        - 1
+        - 2
+
+  # --- Validaciones que el servicio NO hace: 201 ---
+
+  - test_number: 18
+    description: "numberOfProducts no coincide con los productos enviados: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        numberOfProducts: 7
+
+  - test_number: 19
+    description: "price negativo: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        price: -45.5
+
+  - test_number: 20
+    description: "products vacío: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        products: []
+
+  - test_number: 21
+    description: "Producto con name vacío, box inexistente y price negativo: 201"
+    request:
+      method: "POST"
+      url: "http://127.0.0.1:8000/orders/"
+      headers: *headers
+      body:
+        <<: *order
+        products:
+          - name: ""
+            box: "XXL"
+            price: -20.0

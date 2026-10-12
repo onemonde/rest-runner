@@ -1,0 +1,5 @@
+rest-runner:
+    retries: 5
+    threads: 1
+    timeout: 30_000
+    verify_ssl: true
