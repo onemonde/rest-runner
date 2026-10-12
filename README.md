@@ -167,6 +167,7 @@ A test that ended in `KO` shows the reason (`timeout` or
 | `config/report-template.md` | Template of the report. |
 | `data/rest-runner.db` | SQLite database with every execution. Created on first use. |
 | `reports/` | Generated reports, one per CIP. Created on first use. |
+| `skill/rest-runner/SKILL.md` | Skill for AI agents (see below). |
 
 All of them are located from the folder of the script, so it can be run from
 any directory.
@@ -224,6 +225,23 @@ To see a `KO`, stop the service and run the suite again: every request ends in
 
 The suite points to port `8000`. If you publish the service on another port,
 replace `127.0.0.1:8000` in a copy of `testcases.yml`.
+
+## Using it from an AI agent
+
+`skill/rest-runner/SKILL.md` is a skill that teaches an AI coding agent (AWS
+Kiro, Claude Code or any other that reads skills) to use `rest-runner` while
+it develops a feature or a bugfix: how to write the YAML file of requests,
+when to run the script itself and when to hand the command to you, and how to
+read the report and draw conclusions from it.
+
+To install it, copy the `skill/rest-runner/` folder to the skills folder of
+your agent, or ask the agent to install it. The first time, tell the agent
+where this project is, because the reports are written here and not in the
+folder it is working on.
+
+The script gives no verdict, so the skill sets one convention: the
+`description` of each test states the case and the expected result
+(`age = -1: 400 error on age`). The agent compares it with the response.
 
 ## Good to know
 
